@@ -1,0 +1,11 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_title_general">General Settings</string>
+    <string name="pref_title_offensiveEnabled">Enable Offensive Quotes</string>
+    <string name="pref_description_offensiveEnabled">Show quotes deemed to be offensive, equivalent to running $fortune -a</string>
+
+</resources>

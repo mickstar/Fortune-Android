@@ -9,12 +9,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.mickstarify.fortunemod.Quote;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 class quoteRange {
     public int start;
@@ -59,7 +62,6 @@ public class FortuneDB {
 
     Map<String, quoteRange> quoteRanges;
 
-
     public FortuneDB(Context context){
         this.quoteRanges = new HashMap<>();
 
@@ -79,8 +81,7 @@ public class FortuneDB {
         }
 
         this.sql_db = myDBHelper.getReadableDatabase();
-
-        this.recalculateQuoteIndexes();
+        this.obtainQuoteIndexes();
     }
 
     public List<String> getCategories(){
@@ -96,20 +97,34 @@ public class FortuneDB {
         return categories;
     }
 
-    public String getQuote (int id){
-        Cursor cursor = sql_db.query("category", new String [] {"quote", "isOffensive"},
+    public Quote getQuote (int id){
+        Cursor cursor = sql_db.query("quote", new String [] {"quote", "isOffensive","category"},
                 "__id="+Integer.toString(id), null, null, null, null);
         cursor.moveToFirst();
 
-//        if (cursor.getString(cursor.getColumnIndex("isOffensive")).equals("1") && !this.allowOffensive){
-//            Log.e("fortune", "giving offensive quote when its disabled!");
-//        }
+        boolean isOffensive = (cursor.getInt(cursor.getColumnIndex("isOffensive")) == 0) ? false : true;
 
+        Quote quote = new Quote (
+                id,
+                cursor.getString(cursor.getColumnIndex("quote")),
+                cursor.getString(cursor.getColumnIndex("category")),
+                isOffensive
+        );
+
+        return quote;
+    }
+
+    public String getCategoryOfQuote (int id){
+        Cursor cursor = sql_db.rawQuery("SELECT category FROM quote WHERE id="+Integer.toString(id), null);
+        cursor.moveToFirst();
         return cursor.getString(0);
     }
 
-    public String getRandomQuote(){
-        return "TODO";
+    public Quote getRandomQuote(){
+        Random r = new Random();
+        int id = r.nextInt(this.quoteRanges.get("quotes").stop - 1) + 1;
+
+        return getQuote(id);
     }
 
 
@@ -120,25 +135,34 @@ public class FortuneDB {
         return this.quoteRanges.get(category).hasOffensive;
     }
 
-//    private boolean isCategoryOffensive (String category){
-//        Cursor cursor = sql_db.rawQuery("SELECT EXISTS(SELECT * FROM quote WHERE category='"
-//                + category + "' and isOffensive=1)", null);
-//        cursor.moveToFirst();
-//        if (cursor.getInt(0) == 1) {
-//            return true;
-//        }
-//        return false;
-//    }
-
     public void obtainQuoteIndexes(){
-        Cursor cursor = sql_db.rawQuery("SELECT * from Category", null);
+        Cursor cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote", null);
+        cursor.moveToFirst();
+        this.quoteIndexStart = cursor.getInt(0);
+        this.quoteIndexStop = cursor.getInt(1);
+        cursor.close();
+
+        cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote where isOffensive=1", null);
+        cursor.moveToFirst();
+        this.quoteRanges.put ("quotes", new quoteRange(cursor.getInt(0), cursor.getInt(1)));
+        cursor.close();
+
+        cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote where isOffensive=0", null);
+        cursor.moveToFirst();
+        this.quoteRanges.get("quotes").hasOffensive = true;
+        this.quoteRanges.get("quotes").offensiveStart = cursor.getInt(0);
+        this.quoteRanges.get("quotes").offensiveStop = cursor.getInt(1);
+        cursor.close();
+
+
+        cursor = sql_db.rawQuery("SELECT * from Category", null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()){
-            if (cursor.getInt(cursor.getColumnIndex("isOffensive")) == 0){
+            if (cursor.getInt(cursor.getColumnIndex("hasOffensive")) == 0){
                 this.quoteRanges.put(cursor.getString(cursor.getColumnIndex("name")),
                         new quoteRange (
                                 cursor.getInt(cursor.getColumnIndex("indexStart")),
-                                cursor.getInt(cursor.getColumnIndex("indexStart"))
+                                cursor.getInt(cursor.getColumnIndex("indexStop"))
                         ));
             }
             else{
@@ -193,7 +217,5 @@ public class FortuneDB {
             Log.v("fortune", category + " " + this.quoteRanges.get(category).toString());
         }
     }
-
-    //TODO load ranges
     //TODO enabled categories
 }

@@ -1,0 +1,14 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_title_general" >
+    <CheckBoxPreference
+        android:key="allowOffensive"
+        android:title="@string/pref_title_offensiveEnabled"
+        android:summary="@string/pref_description_offensiveEnabled"
+        android:defaultValue="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:id="@+id/pref_cat_categories" android:title="@string/pref_title_category">
+    </PreferenceCategory>
+
+</PreferenceScreen>

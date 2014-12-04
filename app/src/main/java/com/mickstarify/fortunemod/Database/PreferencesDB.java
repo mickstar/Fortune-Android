@@ -20,8 +20,10 @@ public class PreferencesDB extends Activity {
         if (this.isFirstExecution()){
             this.initPreferences();
         }
-            
-                
+    }
+
+    public boolean offensiveQuotesEnabled (){
+        return this.preferences.getBoolean("allowOffensive", false);
     }
 
     public void initPreferences(){
