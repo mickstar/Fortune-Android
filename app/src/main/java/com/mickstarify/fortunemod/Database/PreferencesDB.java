@@ -1,22 +1,25 @@
 package com.mickstarify.fortunemod.Database;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.mickstarify.fortunemod.MainActivity;
+
+import java.util.HashMap;
 
 /**
  * Created by michael on 3/12/14.
  */
-public class PreferencesDB extends Activity {
-    final static String PREFS_NAME = "FortunePreferences";
-
+public class PreferencesDB {
     private SharedPreferences preferences;
 
-    public PreferencesDB(){
-       this.preferences = getSharedPreferences (PREFS_NAME, 0);
-        
+    public PreferencesDB(Context context){
+       this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
         if (this.isFirstExecution()){
             this.initPreferences();
         }
@@ -44,10 +47,14 @@ public class PreferencesDB extends Activity {
         prefEditor.commit();
     }
 
+    public boolean isCategoryEnabled (String category){
+        return preferences.getBoolean("enabled-"+category, true);
+    }
+
     public boolean isFirstExecution (){
         if (this.preferences.getBoolean("hasRun", false)) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 }

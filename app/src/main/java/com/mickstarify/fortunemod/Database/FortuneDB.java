@@ -67,13 +67,12 @@ public class FortuneDB {
     int quoteIndexStart = 1;
     int quoteIndexStop = 21089;
 
-    int quoteRange;
-
     List<Category> categories;
+    private int nQuotesEnabled;
 
     public FortuneDB(Context context){
         this.categories = new LinkedList<>();
-        this.preferences = new PreferencesDB();
+        this.preferences = new PreferencesDB(context);
         FortuneDBHelper myDBHelper;
         myDBHelper = new FortuneDBHelper(context);
         try{
@@ -90,20 +89,22 @@ public class FortuneDB {
         }
 
         this.sql_db = myDBHelper.getReadableDatabase();
+
+
         this.obtainQuoteIndexes();
         this.updatePreferences();
     }
 
 
-    private void updatePreferences() {
+    public void updatePreferences() {
         this.allowOffensive = preferences.offensiveQuotesEnabled();
-//        for (Category category: categories){
-//
-//        }
-        this.quoteRange = this.quoteIndexStop - this.quoteIndexStart + 1;
-
-
-
+        this.nQuotesEnabled = 0;
+        for (Category category: categories){
+            category.enabled = preferences.isCategoryEnabled(category.name);
+            if (category.enabled){
+                this.nQuotesEnabled += this.getQuoteCount(category);
+            }
+        }
     }
 
     public List<String> getCategories(){
@@ -111,7 +112,6 @@ public class FortuneDB {
         Cursor cursor = sql_db.query("category", new String [] {"name"}, null, null, null, null, null);
         cursor.moveToFirst();
         for (int i=0;i<cursor.getCount();++i){
-//            Log.v("fortune", Integer.toString(i)+cursor.toString());
             categories.add(cursor.getString(0));
             cursor.moveToNext();
         }
@@ -131,7 +131,10 @@ public class FortuneDB {
                 cursor.getString(cursor.getColumnIndex("quote")),
                 cursor.getString(cursor.getColumnIndex("category")),
                 isOffensive
+
         );
+
+        Log.v("Fortune",String.format("return %d/%s",id,quote.category));
 
         return quote;
     }
@@ -143,16 +146,82 @@ public class FortuneDB {
     }
 
     public Quote getRandomQuote(){
+        if (this.nQuotesEnabled == 0){
+            return this.getErrorQuote();
+        }
         Random r = new Random();
-        int id = r.nextInt(quoteRange - 1) + 1;
+        int id = r.nextInt(this.nQuotesEnabled);
+        Log.v("Fortune", String.format("After %d in %d", id, this.nQuotesEnabled));
 
-        return getQuote(id);
+        int new_id = id;
+        for (Category category : categories){
+            if (category.enabled){
+                if (new_id < getNonOffensiveQuoteCount(category)){
+                    new_id = category.start+new_id;
+                    return getQuote(new_id);
+                }
+                else{
+                    new_id -= getNonOffensiveQuoteCount(category);
+                }
+            }
+        }
+        for (Category category : categories){
+            if (category.enabled){
+                if (new_id < getOffensiveQuoteCount(category)){
+                    Log.v("Fortune",String.format("Approaching %s nid=%d s=%d, e=%d",category.name,new_id,category.offensiveStart,category.offensiveStop));
+                    new_id = category.offensiveStart+new_id;
+                    break;
+                }
+                else{
+                    new_id -= getOffensiveQuoteCount(category);
+                }
+            }
+        }
+
+        return getQuote(new_id);
+    }
+
+    private int getNonOffensiveQuoteCount(Category category) {
+        int total = category.stop - category.start + 1;
+        if (total == 1) total = 0;
+        return total;
+    }
+    private int getOffensiveQuoteCount(Category category) {
+        int total = 0;
+        if (this.allowOffensive && category.hasOffensive){
+            total += (category.offensiveStop - category.offensiveStart + 1);
+        }
+        return total;
+    }
+
+    private Quote getErrorQuote (){
+        Quote q = new Quote(0, "Please enable some categories", "Error", false);
+
+        return q;
+    }
+
+    public int getQuoteCount(Category category) {
+        int total = category.stop - category.start + 1;
+        if (total == 1) total = 0;
+        if (this.allowOffensive){
+            total += (category.offensiveStop - category.offensiveStart + 1);
+        }
+
+        return total;
     }
 
 
     public boolean isCategoryOffensive(String category){
-        //TODO
-        return true;
+        if (this.categories.size() < 1){
+            this.obtainQuoteIndexes();
+            return isCategoryOffensive(category);
+        }
+        for (Category c : categories){
+            if (c.name.equals(category)){
+                return c.hasOffensive;
+            }
+        }
+        return false;
     }
 
     public void obtainQuoteIndexes(){
@@ -180,9 +249,17 @@ public class FortuneDB {
                     cursor.getInt(cursor.getColumnIndex("indexOffensiveStop"))
                 ));
             }
+            cursor.moveToNext();
         }
+    }
 
-        cursor.moveToNext();
+    public int getNumberOfQuotes(String category) {
+        for (Category cat: categories){
+            if (cat.name.equals(category)){
+                return this.getQuoteCount(cat);
+            }
+        }
+        return -1;
     }
     //TODO enabled categories
 }

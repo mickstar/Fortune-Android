@@ -8,7 +8,8 @@
         android:defaultValue="false" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:id="@+id/pref_cat_categories" android:title="@string/pref_title_category">
+    <PreferenceCategory android:id="@+id/pref_cat_categories" android:title="@string/pref_title_category"
+        android:key="Categories">
     </PreferenceCategory>
 
 </PreferenceScreen>
