@@ -5,6 +5,7 @@ package com.mickstarify.fortunemod.Database;
  */
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -15,11 +16,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-class quoteRange {
+class Category {
+    String name;
+    public boolean enabled = true;
     public int start;
     public int stop;
 
@@ -28,14 +32,16 @@ class quoteRange {
     public int offensiveStart;
     public int offensiveStop;
 
-    public quoteRange (int start, int stop){
+    public Category (String name, int start, int stop){
+        this.name = name;
         this.start = start;
         this.stop = stop;
         this.hasOffensive = false;
 
     }
 
-    public quoteRange(int start, int stop, int offensiveStart, int offensiveStop){
+    public Category(String name, int start, int stop, int offensiveStart, int offensiveStop){
+        this.name = name;
         this.start = start;
         this.stop = stop;
         this.hasOffensive = true;
@@ -54,17 +60,20 @@ class quoteRange {
 
 public class FortuneDB {
     private SQLiteDatabase sql_db;
+    PreferencesDB preferences;
 
-    public static boolean allowOffensive;
+    public boolean allowOffensive;
 
     int quoteIndexStart = 1;
     int quoteIndexStop = 21089;
 
-    Map<String, quoteRange> quoteRanges;
+    int quoteRange;
+
+    List<Category> categories;
 
     public FortuneDB(Context context){
-        this.quoteRanges = new HashMap<>();
-
+        this.categories = new LinkedList<>();
+        this.preferences = new PreferencesDB();
         FortuneDBHelper myDBHelper;
         myDBHelper = new FortuneDBHelper(context);
         try{
@@ -82,6 +91,19 @@ public class FortuneDB {
 
         this.sql_db = myDBHelper.getReadableDatabase();
         this.obtainQuoteIndexes();
+        this.updatePreferences();
+    }
+
+
+    private void updatePreferences() {
+        this.allowOffensive = preferences.offensiveQuotesEnabled();
+//        for (Category category: categories){
+//
+//        }
+        this.quoteRange = this.quoteIndexStop - this.quoteIndexStart + 1;
+
+
+
     }
 
     public List<String> getCategories(){
@@ -122,17 +144,15 @@ public class FortuneDB {
 
     public Quote getRandomQuote(){
         Random r = new Random();
-        int id = r.nextInt(this.quoteRanges.get("quotes").stop - 1) + 1;
+        int id = r.nextInt(quoteRange - 1) + 1;
 
         return getQuote(id);
     }
 
 
     public boolean isCategoryOffensive(String category){
-        if (!this.quoteRanges.containsKey(category)){
-            this.obtainQuoteIndexes();
-        }
-        return this.quoteRanges.get(category).hasOffensive;
+        //TODO
+        return true;
     }
 
     public void obtainQuoteIndexes(){
@@ -142,80 +162,27 @@ public class FortuneDB {
         this.quoteIndexStop = cursor.getInt(1);
         cursor.close();
 
-        cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote where isOffensive=1", null);
-        cursor.moveToFirst();
-        this.quoteRanges.put ("quotes", new quoteRange(cursor.getInt(0), cursor.getInt(1)));
-        cursor.close();
-
-        cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote where isOffensive=0", null);
-        cursor.moveToFirst();
-        this.quoteRanges.get("quotes").hasOffensive = true;
-        this.quoteRanges.get("quotes").offensiveStart = cursor.getInt(0);
-        this.quoteRanges.get("quotes").offensiveStop = cursor.getInt(1);
-        cursor.close();
-
-
         cursor = sql_db.rawQuery("SELECT * from Category", null);
         cursor.moveToFirst();
-        while (!cursor.isAfterLast()){
-            if (cursor.getInt(cursor.getColumnIndex("hasOffensive")) == 0){
-                this.quoteRanges.put(cursor.getString(cursor.getColumnIndex("name")),
-                        new quoteRange (
-                                cursor.getInt(cursor.getColumnIndex("indexStart")),
-                                cursor.getInt(cursor.getColumnIndex("indexStop"))
-                        ));
+        while (!cursor.isAfterLast()) {
+            if (cursor.getInt(cursor.getColumnIndex("hasOffensive")) == 0) {
+                categories.add(new Category(
+                    cursor.getString(cursor.getColumnIndex("name")),
+                    cursor.getInt(cursor.getColumnIndex("indexStart")),
+                    cursor.getInt(cursor.getColumnIndex("indexStop"))
+                ));
+            } else {
+                categories.add(new Category(
+                    cursor.getString(cursor.getColumnIndex("name")),
+                    cursor.getInt(cursor.getColumnIndex("indexStart")),
+                    cursor.getInt(cursor.getColumnIndex("indexStop")),
+                    cursor.getInt(cursor.getColumnIndex("indexOffensiveStart")),
+                    cursor.getInt(cursor.getColumnIndex("indexOffensiveStop"))
+                ));
             }
-            else{
-                this.quoteRanges.put(cursor.getString(cursor.getColumnIndex("name")),
-                        new quoteRange (
-                                cursor.getInt(cursor.getColumnIndex("indexStart")),
-                                cursor.getInt(cursor.getColumnIndex("indexStop")),
-                                cursor.getInt(cursor.getColumnIndex("indexOffensiveStart")),
-                                cursor.getInt(cursor.getColumnIndex("indexOffensiveStop"))
-                        ));
-            }
-
-            cursor.moveToNext();
         }
-    }
 
-
-    public void recalculateQuoteIndexes(){
-        Cursor cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote", null);
-        cursor.moveToFirst();
-        this.quoteIndexStart = cursor.getInt(0);
-        this.quoteIndexStop = cursor.getInt(1);
-        cursor.close();
-
-        cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote where isOffensive=1", null);
-        cursor.moveToFirst();
-        this.quoteRanges.put ("quotes", new quoteRange(cursor.getInt(0), cursor.getInt(1)));
-        cursor.close();
-
-        cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote where isOffensive=0", null);
-        cursor.moveToFirst();
-        this.quoteRanges.get("quotes").hasOffensive = true;
-        this.quoteRanges.get("quotes").offensiveStart = cursor.getInt(0);
-        this.quoteRanges.get("quotes").offensiveStop = cursor.getInt(1);
-        cursor.close();
-
-        for (String category: this.getCategories()){
-            cursor = sql_db.rawQuery("SELECT min(__id), max(__id) FROM quote WHERE category='"
-                    + category + "' and isOffensive=0", null);
-            cursor.moveToFirst();
-            this.quoteRanges.put(category, new quoteRange(cursor.getInt(0), cursor.getInt(1)));
-            cursor.close();
-            if (this.isCategoryOffensive(category)){
-                this.quoteRanges.get(category).hasOffensive = true;
-                cursor = sql_db.rawQuery("SELECT min(__id), max(__id) from quote where category='"
-                        + category + "' and isOffensive=1", null);
-                cursor.moveToFirst();
-                this.quoteRanges.get(category).offensiveStart = cursor.getInt(0);
-                this.quoteRanges.get(category).offensiveStop = cursor.getInt(1);
-            }
-
-            Log.v("fortune", category + " " + this.quoteRanges.get(category).toString());
-        }
+        cursor.moveToNext();
     }
     //TODO enabled categories
 }

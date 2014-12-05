@@ -20,12 +20,16 @@ public class SettingsActivity extends PreferenceActivity {
 //            setListFooter(button);
 //        }
 
-        //PreferenceCategory categories = (PreferenceCategory) findPreference(R.id.pref_cat_categories);
+        PreferenceCategory categories = (PreferenceCategory) (R.id.pref_cat_categories);
         //categories.addPreference(new CheckBoxPreference());
         addPreferencesFromResource(R.xml.pref_general);
 //            button.setText("Some action");
 
-        CheckBoxPreference cbp = new CheckBoxPreference().setTitle("test");
+        CheckBoxPreference cbp = new CheckBoxPreference(this);
+        cbp.setTitle("test");
+        cbp.setDefaultValue(true);
+
+        categories.addPreference(cbp);
     }
 
     /**

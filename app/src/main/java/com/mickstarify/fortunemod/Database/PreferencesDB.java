@@ -10,7 +10,7 @@ import com.mickstarify.fortunemod.MainActivity;
  * Created by michael on 3/12/14.
  */
 public class PreferencesDB extends Activity {
-    final String PREFS_NAME = "FortunePreferences";
+    final static String PREFS_NAME = "FortunePreferences";
 
     private SharedPreferences preferences;
 
