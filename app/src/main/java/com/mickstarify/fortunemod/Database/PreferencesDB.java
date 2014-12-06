@@ -20,9 +20,9 @@ public class PreferencesDB {
     public PreferencesDB(Context context){
        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        if (this.isFirstExecution()){
-            this.initPreferences();
-        }
+//        if (this.isFirstExecution()){
+//            this.initPreferences();
+//        }
     }
 
     public boolean offensiveQuotesEnabled (){
