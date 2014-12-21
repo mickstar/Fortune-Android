@@ -75,7 +75,9 @@ public class FortuneDB {
         this.preferences = new PreferencesDB(context);
         FortuneDBHelper myDBHelper;
         myDBHelper = new FortuneDBHelper(context);
+
         try{
+            myDBHelper.performUpdateIfNeeded(1);
             myDBHelper.createDataBase();
         }
         catch (IOException e){

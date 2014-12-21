@@ -37,17 +37,5 @@ titles for adjacent pages.
                     tools:context=".MainActivity"
                     tools:ignore="MergeRootFrame"
                     android:layout_alignParentBottom="true">
-
-        <fragment android:name="com.mickstarify.fortunemod.MainActivity$PlaceholderFragment"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_above="@+id/adFragment" />
-
-        <fragment
-            android:id="@+id/adFragment"
-            android:name="com.mickstarify.fortunemod.MainActivity$AdFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 </RelativeLayout>

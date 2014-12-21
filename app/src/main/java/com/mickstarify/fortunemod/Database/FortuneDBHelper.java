@@ -1,10 +1,12 @@
 package com.mickstarify.fortunemod.Database;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,6 +87,31 @@ public class FortuneDBHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Check database version
+     */
+    private int checkDatabaseVersion() throws SQLiteException {
+
+        SQLiteDatabase checkDB = null;
+        String myPath = DB_PATH + DB_NAME;
+        checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+
+        Cursor cursor = checkDB.rawQuery("SELECT max(number) from Version", null);
+        return cursor.getInt(cursor.getColumnIndex("number"));
+    }
+
+    public void performUpdateIfNeeded (int bundledVersion){
+        try{
+            int v = this.checkDatabaseVersion();
+            if (bundledVersion > v){
+                this.replaceDatabase();
+            }
+        }
+        catch(SQLiteException e){
+            this.replaceDatabase();
+        }
+    }
+
+    /**
      * Copies your database from your local assets-folder to the just created empty database in the
      * system folder, from where it can be accessed and handled.
      * This is done by transfering bytestream.
@@ -112,6 +139,18 @@ public class FortuneDBHelper extends SQLiteOpenHelper {
         myOutput.close();
         myInput.close();
 
+    }
+
+    public void replaceDatabase(){
+        boolean dbExists = this.checkDataBase();
+        if (dbExists){
+            File file = new File(DB_PATH + DB_NAME);
+            file.delete();
+        }
+        try {
+            this.createDataBase();
+        } catch (IOException e) {
+        }
     }
 
     public void openDataBase() throws SQLException {
