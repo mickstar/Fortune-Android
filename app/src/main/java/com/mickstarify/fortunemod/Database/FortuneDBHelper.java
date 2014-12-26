@@ -93,10 +93,15 @@ public class FortuneDBHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase checkDB = null;
         String myPath = DB_PATH + DB_NAME;
-        checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
-
-        Cursor cursor = checkDB.rawQuery("SELECT max(number) from Version", null);
-        return cursor.getInt(cursor.getColumnIndex("number"));
+        try {
+            checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+            Cursor cursor = checkDB.rawQuery("SELECT max(number) from Version", null);
+            cursor.moveToFirst();
+            return cursor.getInt(cursor.getColumnIndex("number"));
+        }
+        catch (Exception e){
+            return -1;
+        }
     }
 
     public void performUpdateIfNeeded (int bundledVersion){
