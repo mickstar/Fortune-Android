@@ -14,6 +14,8 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 
 /**
+ * This code was mostly copied from stackexchange
+ * and as such is released with my modifications under the originating CC license
  * Created by michael on 29/11/14.
  */
 public class FortuneDBHelper extends SQLiteOpenHelper {

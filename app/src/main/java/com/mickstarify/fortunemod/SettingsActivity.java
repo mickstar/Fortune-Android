@@ -1,5 +1,7 @@
 package com.mickstarify.fortunemod;
 
+// Copyright Michael Johnston 2014
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;

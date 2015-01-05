@@ -12,6 +12,7 @@ import com.mickstarify.fortunemod.MainActivity;
 import java.util.HashMap;
 
 /**
+ * Copyright Michael Johnston 2014*
  * Created by michael on 3/12/14.
  */
 public class PreferencesDB {

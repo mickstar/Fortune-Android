@@ -1,6 +1,7 @@
 package com.mickstarify.fortunemod.Database;
 
 /**
+ * Copyright Michael Johnston 2014
  * Created by Michael on 11/10/2014.
  */
 

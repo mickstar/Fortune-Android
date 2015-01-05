@@ -1,6 +1,9 @@
+
+
 package com.mickstarify.fortunemod;
 
 /**
+ * Copyright Michael Johnston
  * Created by michael on 4/12/14.
  */
 public class Quote {
