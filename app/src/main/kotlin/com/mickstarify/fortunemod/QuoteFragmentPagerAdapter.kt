@@ -28,7 +28,6 @@ public class QuoteFragmentPagerAdapter(val fragmentManager: FragmentManager, val
             quotes.add(QuoteFragment.newInstance(fortuneDB.randomQuote))
         }
         return quotes[position]
-
     }
 
     override fun getCount(): Int {

@@ -35,7 +35,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionListener {
     //lateinit var fortuneDB : FortuneDB;
-
+    var firstQuoteShow : String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -45,20 +45,41 @@ class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionList
 
         val viewPager : ViewPager = findViewById(R.id.quote_pager) as ViewPager
         viewPager.adapter = quoteFragmentAdapter
+
+        viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(p0: Int) {
+            }
+
+            override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
+            }
+
+            override fun onPageSelected(position: Int) {
+                setQuote((quoteFragmentAdapter.getItem(position) as QuoteFragment).quote.quote)
+            }
+
+        })
+
+        firstQuoteShow = (quoteFragmentAdapter.getItem(0) as QuoteFragment).quote.quote
     }
 
+    lateinit var shareActionProvider : ShareActionProvider
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
+        val shareItem : MenuItem = menu.findItem(R.id.menu_item_share)
+        shareActionProvider = MenuItemCompat.getActionProvider(shareItem) as ShareActionProvider
+        setQuote(firstQuoteShow)
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        val id = item.itemId
+    fun setQuote (quote : String) : Unit{
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.setType("text/plain")
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, quote)
+        shareActionProvider.setShareIntent(intent)
+    }
 
-        //noinspection SimplifiableIfStatement
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
         if (id == R.id.action_settings) {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
@@ -70,11 +91,8 @@ class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionList
         return super.onOptionsItemSelected(item)
     }
 
-    fun setCategory(category: String, isOffensive: Boolean) {
-        this.setTitle(String.format("FortuneMod/%s%s", category, if (isOffensive) "-off" else ""))
-    }
-
     companion object {
         lateinit var fortuneDB : FortuneDB;
+
     }
 }
