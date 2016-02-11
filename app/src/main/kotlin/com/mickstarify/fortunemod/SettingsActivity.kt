@@ -16,7 +16,7 @@ import android.widget.Button
 import java.util.LinkedList
 
 class SettingsActivity : PreferenceActivity() {
-    internal var cbp_categories: MutableList<CheckBoxPreference>
+    lateinit var cbp_categories: MutableList<CheckBoxPreference>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addPreferencesFromResource(R.xml.pref_general)
@@ -29,7 +29,7 @@ class SettingsActivity : PreferenceActivity() {
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val spChanged = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            MainActivity.myFortuneDB.updatePreferences()
+            MainActivity.fortuneDB.updatePreferences()
         }
             // your stuff here
         prefs.registerOnSharedPreferenceChangeListener(spChanged)
@@ -48,9 +48,9 @@ class SettingsActivity : PreferenceActivity() {
     }
 
     private fun addCategories(categories: PreferenceCategory) {
-        for (category in MainActivity.myFortuneDB.categories) {
+        for (category in MainActivity.fortuneDB.getCategories()) {
             val cbp = CheckBoxPreference(this)
-            cbp.title = String.format("%s (%d)", category, MainActivity.myFortuneDB.getNumberOfQuotes(category))
+            cbp.title = String.format("%s (%d)", category, MainActivity.fortuneDB.getNumberOfQuotes(category))
             cbp.key = "enabled-" + category
             cbp.setDefaultValue(true)
 

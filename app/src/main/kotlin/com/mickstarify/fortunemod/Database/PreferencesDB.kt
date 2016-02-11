@@ -34,9 +34,9 @@ class PreferencesDB(context: Context) {
         val prefEditor = this.preferences.edit()
         prefEditor.putBoolean("hasRun", true)
         prefEditor.putBoolean("allowOffensive", false)
-        for (category in MainActivity.myFortuneDB.getCategories()) {
+        for (category in MainActivity.fortuneDB.getCategories()) {
             prefEditor.putBoolean("enabled-" + category, true)
-            if (!MainActivity.myFortuneDB.isCategoryOffensive(category)) {
+            if (!MainActivity.fortuneDB.isCategoryOffensive(category)) {
                 prefEditor.putBoolean("hasOffensive-" + category, false)
             } else {
                 prefEditor.putBoolean("hasOffensive-" + category, true)

@@ -6,19 +6,10 @@ package com.mickstarify.fortunemod.Database
  */
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
-
 import com.mickstarify.fortunemod.Quote
-
-import java.io.IOException
-import java.sql.SQLException
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.LinkedList
-import java.util.Random
+import java.util.*
 
 internal class Category {
     var name: String
@@ -72,24 +63,7 @@ class FortuneDB(context: Context) {
     init {
         this.categories = LinkedList<Category>()
         this.preferences = PreferencesDB(context)
-        val myDBHelper: FortuneDBHelper
-        myDBHelper = FortuneDBHelper(context)
-
-        try {
-            myDBHelper.performUpdateIfNeeded(1)
-            myDBHelper.createDataBase()
-        } catch (e: IOException) {
-            throw Error("Unable to create Database")
-        }
-
-        try {
-            myDBHelper.openDataBase()
-        } catch (e: SQLException) {
-            e.printStackTrace()
-        }
-
-        this.sql_db = myDBHelper.readableDatabase
-
+        this.sql_db = QuoteDatabase(context).readableDatabase
 
         this.obtainQuoteIndexes()
         this.updatePreferences()
@@ -199,7 +173,7 @@ class FortuneDB(context: Context) {
             return q
         }
 
-    fun getQuoteCount(category: Category): Int {
+    internal fun getQuoteCount(category: Category): Int {
         var total = category.stop - category.start + 1
         if (total == 1) total = 0
         if (this.allowOffensive) {
@@ -258,5 +232,4 @@ class FortuneDB(context: Context) {
         }
         return -1
     }
-    //TODO enabled categories
 }
