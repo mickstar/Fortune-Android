@@ -1,7 +1,6 @@
 package com.mickstarify.fortunemod
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -23,7 +22,7 @@ class QuoteFragment : Fragment() {
     // TODO: Rename and change types of parameters
 
     private var mListener: OnFragmentInteractionListener? = null
-    lateinit public var quote : Quote;
+    lateinit public var quote: Quote;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +34,8 @@ class QuoteFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        val rootView : View = inflater!!.inflate(R.layout.fragment_quote, container, false)
-        val quoteTextView : TextView = rootView.findViewById(R.id.lbl_quote) as TextView
+        val rootView: View = inflater!!.inflate(R.layout.fragment_quote, container, false)
+        val quoteTextView: TextView = rootView.findViewById(R.id.lbl_quote) as TextView
         quoteTextView.text = "${quote.quote}\n"
         return rootView
     }

@@ -20,22 +20,19 @@ package com.mickstarify.fortunemod
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.ShareActionProvider
-import android.view.*
-import android.widget.TextView
+import android.view.Menu
+import android.view.MenuItem
 import com.mickstarify.fortunemod.Database.FortuneDB
-import java.util.*
 
 
-class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), QuoteFragment.OnFragmentInteractionListener {
     //lateinit var fortuneDB : FortuneDB;
-    var firstQuoteShow : String = ""
+    var firstQuoteShow: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -43,7 +40,7 @@ class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionList
         fortuneDB = FortuneDB(applicationContext)
         val quoteFragmentAdapter = QuoteFragmentPagerAdapter(supportFragmentManager, fortuneDB)
 
-        val viewPager : ViewPager = findViewById(R.id.quote_pager) as ViewPager
+        val viewPager: ViewPager = findViewById(R.id.quote_pager) as ViewPager
         viewPager.adapter = quoteFragmentAdapter
 
         viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
@@ -68,17 +65,17 @@ class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionList
         super.onRestoreInstanceState(savedInstanceState)
     }
 
-    lateinit var shareActionProvider : ShareActionProvider
+    lateinit var shareActionProvider: ShareActionProvider
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
-        val shareItem : MenuItem = menu.findItem(R.id.menu_item_share)
+        val shareItem: MenuItem = menu.findItem(R.id.menu_item_share)
         shareActionProvider = MenuItemCompat.getActionProvider(shareItem) as ShareActionProvider
         setQuote(firstQuoteShow)
         return true
     }
 
-    fun setQuote (quote : String) : Unit{
+    fun setQuote(quote: String): Unit {
         val intent = Intent(Intent.ACTION_SEND)
         intent.setType("text/plain")
         intent.putExtra(android.content.Intent.EXTRA_TEXT, quote)
@@ -99,7 +96,7 @@ class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionList
     }
 
     companion object {
-        lateinit var fortuneDB : FortuneDB;
+        lateinit var fortuneDB: FortuneDB;
 
     }
 }

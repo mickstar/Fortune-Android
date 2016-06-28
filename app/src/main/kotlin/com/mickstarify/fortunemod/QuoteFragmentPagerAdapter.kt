@@ -3,7 +3,6 @@ package com.mickstarify.fortunemod
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.util.Log
 import com.mickstarify.fortunemod.Database.FortuneDB
 import java.util.*
 
@@ -37,7 +36,7 @@ public class QuoteFragmentPagerAdapter(val fragmentManager: FragmentManager, val
     override fun getPageTitle(position: Int): CharSequence {
         val quoteFragment = getItem (position) as QuoteFragment
         val quote = quoteFragment.quote
-        if (quote.isOffensive){
+        if (quote.isOffensive) {
             return "${quote.category}-off"
         }
         return "${quote.category}"

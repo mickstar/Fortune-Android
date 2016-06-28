@@ -7,13 +7,9 @@ import android.os.Bundle
 import android.preference.CheckBoxPreference
 import android.preference.PreferenceActivity
 import android.preference.PreferenceCategory
-import android.preference.PreferenceFragment
 import android.preference.PreferenceManager
-import android.util.Log
-import android.view.View
 import android.widget.Button
-
-import java.util.LinkedList
+import java.util.*
 
 class SettingsActivity : PreferenceActivity() {
     lateinit var cbp_categories: MutableList<CheckBoxPreference>
@@ -31,7 +27,7 @@ class SettingsActivity : PreferenceActivity() {
         val spChanged = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             MainActivity.fortuneDB.updatePreferences()
         }
-            // your stuff here
+        // your stuff here
         prefs.registerOnSharedPreferenceChangeListener(spChanged)
 
         val button = Button(this)

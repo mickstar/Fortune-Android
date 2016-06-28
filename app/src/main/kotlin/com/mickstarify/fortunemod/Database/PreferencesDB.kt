@@ -1,15 +1,9 @@
 package com.mickstarify.fortunemod.Database
 
-import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import android.database.sqlite.SQLiteDatabase
 import android.preference.PreferenceManager
-import android.util.Log
-
 import com.mickstarify.fortunemod.MainActivity
-
-import java.util.HashMap
 
 /**
  * Copyright Michael Johnston 2014*
