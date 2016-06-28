@@ -10,13 +10,13 @@ android {
         applicationId "com.mickstarify.fortunemod"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 5
-        versionName "2.0"
+        versionCode 6
+        versionName "2.1"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -31,7 +31,7 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.android.support:support-v4:24.0.0'
-    compile 'com.google.android.gms:play-services:9.2.0'
+//    compile 'com.google.android.gms:play-services:9.2.0'
     compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:2.0.1'
 }
 buildscript {
