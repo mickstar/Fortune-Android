@@ -62,7 +62,14 @@ class MainActivity : AppCompatActivity(),QuoteFragment.OnFragmentInteractionList
         firstQuoteShow = (quoteFragmentAdapter.getItem(0) as QuoteFragment).quote.quote
     }
 
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        this.invalidateOptionsMenu() // This gets done in order to reinitialize shareActionProvider
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
     lateinit var shareActionProvider : ShareActionProvider
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         val shareItem : MenuItem = menu.findItem(R.id.menu_item_share)
