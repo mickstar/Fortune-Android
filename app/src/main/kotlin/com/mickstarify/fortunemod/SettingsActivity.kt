@@ -12,12 +12,12 @@ import android.widget.Button
 import java.util.*
 
 class SettingsActivity : PreferenceActivity() {
-    lateinit var cbp_categories: MutableList<CheckBoxPreference>
+    lateinit var cbp_categories: MutableMap<String,CheckBoxPreference>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addPreferencesFromResource(R.xml.pref_general)
 
-        this.cbp_categories = LinkedList<CheckBoxPreference>()
+        this.cbp_categories = HashMap<String,CheckBoxPreference>()
 
         val categories = findPreference("Categories") as PreferenceCategory
         this.addCategories(categories)
@@ -26,6 +26,7 @@ class SettingsActivity : PreferenceActivity() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val spChanged = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             MainActivity.fortuneDB.updatePreferences()
+            this.updateCategories()
         }
         // your stuff here
         prefs.registerOnSharedPreferenceChangeListener(spChanged)
@@ -43,6 +44,20 @@ class SettingsActivity : PreferenceActivity() {
         setListFooter(button)
     }
 
+    private fun updateCategories(){
+        for (category in this.cbp_categories.keys){
+            val nQuotes = MainActivity.fortuneDB.getNumberOfQuotes(category)
+            if(nQuotes == 0){
+                cbp_categories[category]!!.isEnabled = false
+                cbp_categories[category]!!.title=String.format("%s (Offensive)",category, nQuotes)
+            }
+            else{
+                cbp_categories[category]!!.isEnabled = true
+                cbp_categories[category]!!.title=String.format("%s (%d)",category, nQuotes)
+            }
+        }
+    }
+
     private fun addCategories(categories: PreferenceCategory) {
         for (category in MainActivity.fortuneDB.getCategories()) {
             val cbp = CheckBoxPreference(this)
@@ -51,18 +66,18 @@ class SettingsActivity : PreferenceActivity() {
             cbp.setDefaultValue(true)
 
             categories.addPreference(cbp)
-            cbp_categories.add(cbp)
+            cbp_categories[category]=cbp
         }
     }
 
     protected fun enableAllCategories() {
-        for (cbp in cbp_categories) {
+        for (cbp in cbp_categories.values) {
             cbp.isChecked = true
         }
     }
 
     protected fun disableAllCategories() {
-        for (cbp in cbp_categories) {
+        for (cbp in cbp_categories.values) {
             cbp.isChecked = false
         }
     }
